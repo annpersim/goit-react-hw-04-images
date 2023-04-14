@@ -12,7 +12,7 @@ export class App extends Component {
     query: '',
     images: [],
     isLoading: false,
-    page: 1,
+    page: 2,
     totalHits: 0,
   };
 
