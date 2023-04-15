@@ -12,16 +12,30 @@ export class App extends Component {
     query: '',
     images: [],
     isLoading: false,
-    page: 2,
+    page: 1,
     totalHits: 0,
   };
 
-  handleFormSubmit = (images, query, totalHits) => {
+  async componentDidUpdate(prevProps, prevState) {
+    if (this.state.query && this.state.query !== prevState.query) {
+      this.setState({
+        isLoading: true,
+      });
+      const responce = await fetchImages(this.state.query, this.state.page);
+      this.setState(prevState => ({
+        images: [...prevState.images, ...responce.hits],
+        totalHits: responce.totalHits,
+        page: prevState.page + 1,
+        isLoading: false,
+      }));
+    }
+  }
+
+  handleFormSubmit = query => {
     this.setState({
-      page: 2,
-      images,
-      query,
-      totalHits,
+      query: query,
+      images: [],
+      page: 1,
     });
   };
 
@@ -31,7 +45,7 @@ export class App extends Component {
     const data = await fetchImages(query, page);
     this.setState(prevState => {
       return {
-        page: (prevState.page += 1),
+        page: prevState.page + 1,
         images: [...prevState.images, ...data.hits],
         isLoading: false,
       };

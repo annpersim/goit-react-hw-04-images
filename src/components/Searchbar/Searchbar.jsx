@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
-import { fetchImages } from 'services/api';
 import {
   SearchButton,
   SearchForm,
@@ -32,16 +31,12 @@ export class Searchbar extends Component {
       return toast.warning('Enter data!');
     }
 
-    try {
-      const data = await fetchImages(searchQuery, 1);
-      if (data.hits.length === 0) {
-        return toast.warning('No images!');
-      }
-      this.props.handleFormSubmit(data.hits, searchQuery, data.totalHits);
-      this.setState({ query: '' });
-    } catch (error) {
-      console.log(error);
-    }
+    this.props.handleFormSubmit(searchQuery);
+    this.reset();
+  };
+
+  reset = () => {
+    this.setState({ query: '' });
   };
 
   render() {
