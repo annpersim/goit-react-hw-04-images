@@ -14,26 +14,25 @@ export function App() {
   const [page, setPage] = useState(1);
   const [totalHits, setTotalHits] = useState(0);
 
-  async function fetchData() {
-    setIsLoading(true);
-    const responce = await fetchImages(query, page);
-    if (responce.totalHits === 0) {
-      return toast.warning('No images has been found!');
-    }
-    setImages(prevState => {
-      return [...prevState, ...responce.hits];
-    });
-    setIsLoading(false);
-    setTotalHits(responce.totalHits);
-
-    setPage(prevState => {
-      return prevState + 1;
-    });
-  }
-
   useEffect(() => {
     if (query === '') {
       return;
+    }
+    async function fetchData() {
+      setIsLoading(true);
+      const responce = await fetchImages(query, page);
+      if (responce.totalHits === 0) {
+        return toast.warning('No images has been found!');
+      }
+      setImages(prevState => {
+        return [...prevState, ...responce.hits];
+      });
+      setIsLoading(false);
+      setTotalHits(responce.totalHits);
+
+      setPage(prevState => {
+        return prevState + 1;
+      });
     }
     fetchData();
   }, [query]);
@@ -45,6 +44,22 @@ export function App() {
   };
 
   const handleLoadClick = async () => {
+    async function fetchData() {
+      setIsLoading(true);
+      const responce = await fetchImages(query, page);
+      if (responce.totalHits === 0) {
+        return toast.warning('No images has been found!');
+      }
+      setImages(prevState => {
+        return [...prevState, ...responce.hits];
+      });
+      setIsLoading(false);
+      setTotalHits(responce.totalHits);
+
+      setPage(prevState => {
+        return prevState + 1;
+      });
+    }
     fetchData();
   };
 
