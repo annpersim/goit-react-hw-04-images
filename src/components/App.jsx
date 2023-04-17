@@ -14,28 +14,31 @@ export function App() {
   const [page, setPage] = useState(1);
   const [totalHits, setTotalHits] = useState(0);
 
-  useEffect(() => {
-    if (query === '') {
-      return;
-    }
-    async function fetchData() {
-      setIsLoading(true);
-      const responce = await fetchImages(query, page);
-      if (responce.totalHits === 0) {
-        return toast.warning('No images has been found!');
+  useEffect(
+    page => {
+      if (query === '') {
+        return;
       }
-      setImages(prevState => {
-        return [...prevState, ...responce.hits];
-      });
-      setIsLoading(false);
-      setTotalHits(responce.totalHits);
+      async function fetchData() {
+        setIsLoading(true);
+        const responce = await fetchImages(query, page);
+        if (responce.totalHits === 0) {
+          return toast.warning('No images has been found!');
+        }
+        setImages(prevState => {
+          return [...prevState, ...responce.hits];
+        });
+        setIsLoading(false);
+        setTotalHits(responce.totalHits);
 
-      setPage(prevState => {
-        return prevState + 1;
-      });
-    }
-    fetchData();
-  }, [query]);
+        setPage(prevState => {
+          return prevState + 1;
+        });
+      }
+      fetchData();
+    },
+    [query]
+  );
 
   const handleFormSubmit = query => {
     setQuery(query);
