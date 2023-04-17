@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { fetchImages } from 'services/api';
@@ -7,72 +7,61 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Blocks } from 'react-loader-spinner';
 
-export class App extends Component {
-  state = {
-    query: '',
-    images: [],
-    isLoading: false,
-    page: 1,
-    totalHits: 0,
-  };
+export function App() {
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(0);
 
-  async componentDidUpdate(prevProps, prevState) {
-    if (this.state.query && this.state.query !== prevState.query) {
-      this.setState({
-        isLoading: true,
-      });
-      const responce = await fetchImages(this.state.query, this.state.page);
-      this.setState(prevState => ({
-        images: [...prevState.images, ...responce.hits],
-        totalHits: responce.totalHits,
-        page: prevState.page + 1,
-        isLoading: false,
-      }));
+  async function fetchData() {
+    setIsLoading(true);
+    const responce = await fetchImages(query, page);
+    setImages(prevState => {
+      return [...prevState, ...responce.hits];
+    });
+    setIsLoading(false);
+    setTotalHits(responce.totalHits);
+    setPage(prevState => {
+      return prevState + 1;
+    });
+  }
+
+  useEffect(() => {
+    if (query === '') {
+      return;
     }
-  }
+    fetchData();
+  }, [query]);
 
-  handleFormSubmit = query => {
-    this.setState({
-      query: query,
-      images: [],
-      page: 1,
-    });
+  const handleFormSubmit = query => {
+    setQuery(query);
+    setImages([]);
+    setPage(1);
   };
 
-  handleLoadClick = async () => {
-    this.setState({ isLoading: true });
-    const { query, page } = this.state;
-    const data = await fetchImages(query, page);
-    this.setState(prevState => {
-      return {
-        page: prevState.page + 1,
-        images: [...prevState.images, ...data.hits],
-        isLoading: false,
-      };
-    });
+  const handleLoadClick = async () => {
+    fetchData();
   };
 
-  render() {
-    const { images, isLoading, totalHits } = this.state;
-    return (
-      <>
-        <Searchbar handleFormSubmit={this.handleFormSubmit} />{' '}
-        <ImageGallery images={images} />
-        {isLoading && (
-          <Blocks
-            visible={true}
-            height="80"
-            width="80"
-            ariaLabel="blocks-loading"
-            wrapperStyle={{}}
-            wrapperClass="blocks-wrapper"
-          />
-        )}
-        {totalHits > images.length && !isLoading && (
-          <Button onClick={this.handleLoadClick} />
-        )}
-        <ToastContainer autoClose={2000} />
-      </>
-    );
-  }
+  return (
+    <>
+      <Searchbar handleFormSubmit={handleFormSubmit} />{' '}
+      <ImageGallery images={images} />
+      {isLoading && (
+        <Blocks
+          visible={true}
+          height="80"
+          width="80"
+          ariaLabel="blocks-loading"
+          wrapperStyle={{}}
+          wrapperClass="blocks-wrapper"
+        />
+      )}
+      {totalHits > images.length && !isLoading && (
+        <Button onClick={handleLoadClick} />
+      )}
+      <ToastContainer autoClose={2000} />
+    </>
+  );
 }
