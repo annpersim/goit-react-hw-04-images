@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { fetchImages } from 'services/api';
 import { Searchbar } from './Searchbar/Searchbar';
@@ -17,11 +17,15 @@ export function App() {
   async function fetchData() {
     setIsLoading(true);
     const responce = await fetchImages(query, page);
+    if (responce.totalHits === 0) {
+      return toast.warning('No images has been found!');
+    }
     setImages(prevState => {
       return [...prevState, ...responce.hits];
     });
     setIsLoading(false);
     setTotalHits(responce.totalHits);
+
     setPage(prevState => {
       return prevState + 1;
     });
